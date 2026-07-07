@@ -1,6 +1,6 @@
-# Caddy build with Corza WAF
+# Caddy build with Coraza WAF
 
-Builds and publishes Caddy + [Corza WAF](github.com/corazawaf/coraza-caddy) 
+Builds and publishes Caddy + [Coraza WAF](github.com/corazawaf/coraza-caddy) 
 
 ## To build container
 
