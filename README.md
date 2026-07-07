@@ -13,6 +13,8 @@ npm version {major,minor,patch}
 or use
 
 ./commit.sh
+
+docker network create ingress-proxy
 ```
 
 ## Using
