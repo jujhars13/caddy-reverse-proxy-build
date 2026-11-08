@@ -9,7 +9,7 @@ RUN xcaddy build \
 RUN mkdir -p /ruleset
 
 # get ruleset from here: https://github.com/corazawaf/coraza/
-RUN wget https://raw.githubusercontent.com/corazawaf/coraza/refs/tags/v3.7.0/coraza.conf-recommended -o /ruleset/coraza.conf && \
+RUN wget https://raw.githubusercontent.com/corazawaf/coraza/refs/tags/v3.8.1/coraza.conf-recommended -o /ruleset/coraza.conf && \
     git clone https://github.com/coreruleset/coreruleset /ruleset/coreruleset
 
 FROM caddy:alpine
