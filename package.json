@@ -1,6 +1,6 @@
 {
 	"name": "caddy-build",
-	"version": "2.1.1",
+	"version": "2.1.2",
 	"description": "Builds and publishes Caddy + Cloudflare to `daas.home.lan:5000/jujhar/caddy-cloudflare:latest`",
 	"main": "index.js",
 	"scripts": {
