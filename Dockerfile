@@ -1,16 +1,23 @@
 FROM caddy:builder AS caddy-builder
 
+# Pin WAF versions: unpinned builds pulled CRS `main`, whose crs-setup.conf.example
+# started defining SecDefaultAction for phases 3-5, which Coraza >=3.8 rejects as a
+# duplicate when the Caddyfile also defines them -> caddy failed to start.
+# Keep CRS_VERSION in step with the coraza-coreruleset version embedded in coraza-caddy
+# (check with: docker run --rm <image> caddy build-info | grep coreruleset)
+# so /ruleset/1_crs_setup.conf matches the @owasp_crs/*.conf rules it configures.
+ARG CORAZA_CADDY_VERSION=v2.6.2
+ARG CRS_VERSION=v4.25.0
+
 # RUN xcaddy build \
 #     --with github.com/corazawaf/coraza-caddy/v2 \
 #     --with github.com/caddy-dns/cloudflare
 RUN xcaddy build \
-    --with github.com/corazawaf/coraza-caddy/v2
+    --with github.com/corazawaf/coraza-caddy/v2@${CORAZA_CADDY_VERSION}
 
-RUN mkdir -p /ruleset
-
-# get ruleset from here: https://github.com/corazawaf/coraza/
-RUN wget https://raw.githubusercontent.com/corazawaf/coraza/refs/tags/v3.8.1/coraza.conf-recommended -o /ruleset/coraza.conf && \
-    git clone https://github.com/coreruleset/coreruleset /ruleset/coreruleset
+# coraza.conf-recommended is embedded in coraza-caddy (Caddyfile uses @coraza.conf-recommended),
+# so only the CRS setup file needs fetching
+RUN git clone --depth 1 --branch ${CRS_VERSION} https://github.com/coreruleset/coreruleset /ruleset/coreruleset
 
 FROM caddy:alpine
 
