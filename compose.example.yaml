@@ -1,0 +1,58 @@
+---
+# Pair with Caddyfile-example. Copy both, rename to compose.yaml / Caddyfile, then:
+#   docker network create ingress-proxy
+#   docker compose up -d
+
+# have services use this network to allow caddy to connect to them
+networks:
+  default:
+    name: ingress-proxy
+    external: true
+
+volumes:
+  # ATTENTION: Caddy keeps ACME certs, account keys and OCSP staples in /data.
+  # Without a persistent volume every container recreate (e.g. a watchtower update)
+  # re-issues every cert and you'll quickly hit Let's Encrypt rate limits.
+  caddy_data:
+  caddy_config:
+
+x-common-labels: &common-labels
+  com.centurylinklabs.watchtower.enable: true
+  com.example.project: "reverse-proxy"
+  org.opencontainers.image.vendor: "com.jujhar"
+  org.opencontainers.image.authors: "jujhar@jujhar.com"
+
+services:
+  caddy:
+    image: ghcr.io/jujhars13/caddy-reverse-proxy:latest
+    pull_policy: always
+    container_name: caddy_external_reverse_proxy
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+      # HTTP/3 (QUIC); see README for the host UDP buffer sysctls
+      - 443:443/udp
+    volumes:
+      # only needed when using your own certs (`tls <cert> <key>` in the Caddyfile)
+      - ./tls:/tls:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - default
+    labels:
+      <<: *common-labels
+
+  # Example upstream: referenced as `reverse_proxy example-app:80` in Caddyfile-example.
+  # Real apps can live in their own compose projects; they just need to join `ingress-proxy`.
+  example-app:
+    image: traefik/whoami:v1.10
+    container_name: example-app
+    restart: unless-stopped
+    # no `ports:` — only reachable through caddy over the ingress-proxy network
+    networks:
+      - default
+    labels:
+      <<: *common-labels
+      com.centurylinklabs.watchtower.enable: false

@@ -1,0 +1,102 @@
+{
+	http_port 80
+	https_port 443
+	order coraza_waf first
+	log default {
+		output stdout
+		format console
+		level INFO
+	}
+
+	storage_clean_interval 3d
+	email admin@example.com
+	ocsp_interval 12h
+	persist_config off
+}
+
+(waf) {
+	coraza_waf {
+		load_owasp_crs
+		directives `
+		Include @coraza.conf-recommended
+		Include @crs-setup.conf.example
+		Include @owasp_crs/*.conf
+		SecRuleEngine On
+		# Debug log off by default; enable temporarily when tuning rules
+		# SecDebugLog /tmp/coraza_debug.log
+		# SecDebugLogLevel 2
+		# Match the normalised path, not raw URI equality: "@streq /admin" on REQUEST_URI
+		# is bypassed by /admin/, //admin, /%61dmin, /admin?x=1 etc.
+		SecRule REQUEST_FILENAME "@rx ^/+admin(/|$)" "id:101,phase:1,t:none,t:urlDecodeUni,t:normalizePath,t:lowercase,deny,status:403"
+		SecRule REQUEST_BODY "@rx maliciouspayload" "id:102,phase:2,t:lowercase,deny,status:403"
+		SecRule RESPONSE_STATUS "@rx 406" "id:103,phase:3,t:lowercase,deny,status:403"
+		SecResponseBodyAccess On
+		# Audit only flagged transactions, and only headers/metadata — parts C (req body)
+		# and E (resp body) would write passwords/tokens/PII to disk
+		SecAuditEngine RelevantOnly
+		SecAuditLogParts ABFHZ
+		SecAuditLog /tmp/coraza_audit.log
+		SecAuditLogFileMode 0600
+		SecAuditLogFormat json
+		`
+	}
+}
+
+# Common response headers/compression, shared across site blocks
+(common) {
+	encode zstd gzip
+
+	header {
+		x-proxy-via "example-caddy"
+		# NB: value must be "max-age=<seconds>" — 31536000 = 1 year
+		Strict-Transport-Security "max-age=31536000"
+		Access-Control-Allow-Origin "*"
+		Access-Control-Allow-Methods "OPTIONS,HEAD,GET,POST,PUT,PATCH"
+	}
+}
+
+# ---------------------------------------------------------------------------
+# Main site: reverse proxy + in-site redirects
+# ---------------------------------------------------------------------------
+https://example.com {
+	log {
+		output file /tmp/example.com.log {
+			mode 600
+			roll_size 20MiB
+			roll_keep 10
+		}
+	}
+
+	# Omit this line to let Caddy obtain certs via ACME automatically
+	tls /tls/example.com.crt /tls/example.com.key
+
+	import waf
+	import common
+
+	# STATIC redirect: one fixed path -> one fixed target
+	redir /old-page /new-page permanent
+
+	# DYNAMIC redirect: regex capture carried into the target
+	#   /blog/2024/hello-world?x=1 -> https://blog.example.com/2024/hello-world?x=1
+	@blog path_regexp blog ^/blog/(.*)$
+	redir @blog https://blog.example.com/{re.blog.1}{query} permanent
+
+	reverse_proxy example-app:80
+}
+
+# ---------------------------------------------------------------------------
+# DYNAMIC host redirect: www -> apex, preserving path + query via {uri}
+#   https://www.example.com/foo?bar=1 -> https://example.com/foo?bar=1
+# ---------------------------------------------------------------------------
+https://www.example.com {
+	tls /tls/example.com.crt /tls/example.com.key
+	redir https://example.com{uri} permanent
+}
+
+# ---------------------------------------------------------------------------
+# STATIC host redirect: retired domain -> fixed URL, path discarded
+#   https://old.example.net/anything -> https://example.com/moved
+# ---------------------------------------------------------------------------
+https://old.example.net {
+	redir https://example.com/moved 302
+}

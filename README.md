@@ -1,8 +1,12 @@
 # Caddy build with Coraza WAF
 
-Builds and publishes Caddy + [Coraza WAF](github.com/corazawaf/coraza-caddy) 
+Builds and publishes Caddy with integrated [Coraza WAF](github.com/corazawaf/coraza-caddy)
 
-## To build container
+## To use
+
+See `compose.example.yaml` and `Caddyfile.example`
+
+## To build container locally
 
 ```bash
 # increment the version number
@@ -33,9 +37,9 @@ docker network create ingress-proxy
     
 }
 
-beszel.home.lan:443 192.168.10.23:443 {
+beszel.home.lan:443 192.168.99.23:443 {
 	#tls internal
-	tls /certs/home.lan.wildcard-fullchain.pem /certs/cert-key.pem
+	tls /certs/my-cert.fullchain.pem /certs/cert-key.pem
 
 	coraza_waf {
 		load_owasp_crs
