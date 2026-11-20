@@ -2,6 +2,10 @@
 
 Builds and publishes Caddy with integrated [Coraza WAF](github.com/corazawaf/coraza-caddy)
 
+Published to:
+- Docker hub - [jujhars13/caddy-reverse-proxy:latest](https://hub.docker.com/repository/docker/jujhars13/caddy-reverse-proxy/)
+- Github GCHR - [ghcr.io/jujhars13/caddy-reverse-proxy:latest](https://github.com/jujhars13/caddy-reverse-proxy-build/pkgs/container/caddy-reverse-proxy)
+
 ## To use
 
 See `compose.example.yaml` and `Caddyfile.example`
