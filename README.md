@@ -6,26 +6,9 @@ Published to:
 - Docker hub - [jujhars13/caddy-reverse-proxy:latest](https://hub.docker.com/repository/docker/jujhars13/caddy-reverse-proxy/)
 - Github GCHR - [ghcr.io/jujhars13/caddy-reverse-proxy:latest](https://github.com/jujhars13/caddy-reverse-proxy-build/pkgs/container/caddy-reverse-proxy)
 
-## To use
+## Usage
 
 See `compose.example.yaml` and `Caddyfile.example`
-
-## To build container locally
-
-```bash
-# increment the version number
-npm version {major,minor,patch}
-
-# now docker commit your commit
-
-or use
-
-./commit.sh
-
-docker network create ingress-proxy
-```
-
-## Using
 
 ```Caddyfile
 {
@@ -38,12 +21,11 @@ docker network create ingress-proxy
 		level debug
 		include "http.handlers.waf"
 	}
-    
 }
 
-beszel.home.lan:443 192.168.99.23:443 {
+widget.home.lan:443 192.168.99.23:443 {
 	#tls internal
-	tls /certs/my-cert.fullchain.pem /certs/cert-key.pem
+	tls /certs/widget.fullchain.pem /certs/widget-key.pem
 
 	coraza_waf {
 		load_owasp_crs
@@ -69,7 +51,8 @@ beszel.home.lan:443 192.168.99.23:443 {
 		`
 	}
 
-	reverse_proxy beszel:8090
+	reverse_proxy widget:8090
+
 	handle {
 		encode gzip
 		header Strict-Transport-Security max-age1536000;
@@ -79,6 +62,20 @@ beszel.home.lan:443 192.168.99.23:443 {
 }
 
 ```
+
+## To deploy new version
+
+```bash
+# increment the version number
+npm version {major,minor,patch}
+
+# now docker commit your commit
+
+or use
+
+./commit.sh
+```
+
 
 ## Sources
 
