@@ -1,6 +1,6 @@
 # Caddy build with Coraza WAF
 
-Builds and publishes Caddy with integrated [Coraza WAF](github.com/corazawaf/coraza-caddy)
+Builds and publishes Caddy with integrated [Coraza WAF](github.com/corazawaf/coraza-caddy) - based on Alpine base images (post [sshhole](https://sshhole.com/) vuln)
 
 Published to:
 - Docker hub - [jujhars13/caddy-reverse-proxy:latest](https://hub.docker.com/repository/docker/jujhars13/caddy-reverse-proxy/)

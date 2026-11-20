@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # Bumps all `uses:` in .github/workflows, including the SHA-pinned ones
+  # (Dependabot updates the SHA and the `# vX.Y.Z` comment together)
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    # one PR per week for all action bumps instead of one PR per action
+    groups:
+      github-actions:
+        patterns:
+          - "*"
