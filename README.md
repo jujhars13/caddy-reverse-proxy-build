@@ -1,6 +1,8 @@
 # Caddy build with Coraza WAF
 
-Builds and publishes Caddy with integrated [Coraza WAF](github.com/corazawaf/coraza-caddy) - based on Alpine base images (post [sshhole](https://sshhole.com/) vuln)
+[https://github.com/jujhars13/caddy-reverse-proxy-build/](https://github.com/jujhars13/caddy-reverse-proxy-build/)
+
+Builds and publishes Caddy with integrated [Coraza WAF](github.com/corazawaf/coraza-caddy) - based on Alpine base images (post 2026 [sshhole](https://sshhole.com/) vuln)
 
 Published to:
 - Docker hub - [jujhars13/caddy-reverse-proxy:latest](https://hub.docker.com/repository/docker/jujhars13/caddy-reverse-proxy/)
@@ -76,7 +78,6 @@ or use
 ./commit.sh
 ```
 
-
 ## Sources
 
-- https://medium.com/@jptosso/oss-waf-stack-using-coraza-caddy-and-elastic-3a715dcbf2f2
+- [https://medium.com/@jptosso/oss-waf-stack-using-coraza-caddy-and-elastic-3a715dcbf2f2](https://medium.com/@jptosso/oss-waf-stack-using-coraza-caddy-and-elastic-3a715dcbf2f2)
