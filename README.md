@@ -71,9 +71,7 @@ widget.home.lan:443 192.168.99.23:443 {
 # increment the version number
 npm version {major,minor,patch}
 
-# now docker commit your commit
-
-or use
+# now docker commit your commit or use
 
 ./commit.sh
 ```
